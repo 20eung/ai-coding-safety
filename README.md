@@ -21,11 +21,11 @@
 
 ## 이런 사고를 막아줍니다
 
-- API 키, 비밀번호, 토큰이 GitHub에 실수로 올라가는 것
-- README, CHANGELOG, 대시보드 등 문서들의 버전이 제각각인 것
+### 1. 보안 점검 (Security Check)
+- API 키, 비밀번호, 프라이빗 키 등이 실수로 GitHub에 푸시되는 것을 방지합니다.
+- `pre-commit` 단계에서 감지하여 커밋 자체를 차단합니다.
 
-### 시각적 예시 (Visual Example)
-
+#### 시각적 예시 (Visual Example)
 보안 위협이 감지되면 커밋이 즉시 차단됩니다:
 
 ```text
@@ -36,6 +36,29 @@
 
 💡 Please remove the credentials or add them to .gitignore
 --------------------------------------------------
+```
+
+### 2. 버전 일관성 검사 (Version Consistency Check)
+- `version.json`을 기준으로 README, CHANGELOG 등의 버전 표기가 일치하는지 검수합니다.
+- 버전이 하나라도 다르면 `git push`를 상시 차단하여 문서 간 불일치를 방지합니다.
+
+#### 시각적 예시 (Visual Example)
+버전 불일치가 감지되면 푸시가 즉시 차단됩니다:
+
+```text
+🔖 버전 일관성 검사 중...
+   기준 버전: v1.3.0 (from version.json)
+
+   ✅ README.md
+   ❌ README.en.md
+      → ENG README 제목 에 v1.3.0 이 없습니다.
+   ✅ CHANGELOG.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ 버전 불일치 — 푸시가 차단되었습니다.
+
+   위 파일들을 v1.3.0 로 업데이트한 뒤 다시 push 하세요.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---

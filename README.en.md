@@ -21,11 +21,11 @@
 
 ## What it prevents
 
-- API keys, passwords, and tokens being accidentally pushed to GitHub.
-- Version mismatch across documents like README, CHANGELOG, and dashboard.
+### 1. Security Check
+- Prevents API keys, passwords, and private keys from being accidentally pushed to GitHub.
+- Detected at the `pre-commit` stage, blocking the commit itself.
 
-### Visual Example
-
+#### Visual Example
 Commits are immediately blocked when a security threat is detected:
 
 ```text
@@ -36,6 +36,29 @@ Commits are immediately blocked when a security threat is detected:
 
 💡 Please remove the credentials or add them to .gitignore
 --------------------------------------------------
+```
+
+### 2. Version Consistency Check
+- Validates version strings in README, CHANGELOG, etc., based on `version.json`.
+- Blocks `git push` if any document mismatch is detected, ensuring total documentation consistency.
+
+#### Visual Example
+Push is blocked when a version mismatch is detected:
+
+```text
+🔖 Checking version consistency...
+   Canonical version: v1.3.0 (from version.json)
+
+   ✅ README.md
+   ❌ README.en.md
+      → v1.3.0 not found in ENG README Title.
+   ✅ CHANGELOG.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ Version Mismatch — Push BLOCKED.
+
+   Update the files above to v1.3.0 and push again.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---
