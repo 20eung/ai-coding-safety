@@ -1,8 +1,8 @@
-# ai-coding-safety v1.2.1
+# ai-coding-safety v1.2.2
 
 [한국어](README.md) | [English](README.en.md)
 
-[![Version](https://img.shields.io/badge/Version-1.2.1-blueviolet.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.2.2-blueviolet.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > A collection of Git hooks to prevent security accidents when collaborating with AI coding assistants.
