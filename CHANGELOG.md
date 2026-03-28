@@ -1,3 +1,9 @@
+## v1.3.2 (2026-03-28)
+
+### 📝 Documentation
+- docs: AI 릴리즈 절차 강제화 (AGENTS.md, CLAUDE.md, GEMINI.md)
+
+---
 ## v1.3.1 (2026-03-28)
 
 ### 🐛 Bug Fixes
