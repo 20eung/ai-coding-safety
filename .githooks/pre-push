@@ -54,9 +54,11 @@ check() {
 }
 
 # ── Files to version-check ────────────────────────────────────
-check "README.md"    "^# ai-coding-safety ${CANONICAL}$"  "README 제목"
-check "README.md"    "Version-${CANONICAL_PLAIN}-blueviolet" "버전 뱃지"
-check "CHANGELOG.md" "^## ${CANONICAL} "                  "CHANGELOG 최신 항목"
+check "README.md"    "^# ai-coding-safety ${CANONICAL}$"    "KOR README 제목"
+check "README.md"    "Version-${CANONICAL_PLAIN}-blueviolet" "KOR 버전 뱃지"
+check "README.en.md" "^# ai-coding-safety ${CANONICAL}$"    "ENG README 제목"
+check "README.en.md" "Version-${CANONICAL_PLAIN}-blueviolet" "ENG 버전 뱃지"
+check "CHANGELOG.md" "^## ${CANONICAL} "                    "CHANGELOG 항목"
 
 echo ""
 

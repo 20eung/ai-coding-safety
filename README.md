@@ -1,10 +1,21 @@
 # ai-coding-safety v1.2.0
 
+[한국어](README.md) | [English](README.en.md)
+
 [![Version](https://img.shields.io/badge/Version-1.2.0-blueviolet.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > AI 코딩 어시스턴트와 협업할 때 발생하는 보안 사고를 방지하는 Git 훅 모음입니다.
 > Claude Code, Gemini CLI, OpenAI Codex 등 모든 AI 코딩 도구에서 동작합니다.
+
+## 목차
+- [이런 사고를 막아줍니다](#이런-사고를-막아줍니다)
+- [AI에게 설정 요청하기](#AI에게-설정-요청하기)
+- [직접 설치하기](#직접-설치하기)
+- [구조 및 동작](#구조-및-동작)
+- [커스터마이징](#커스터마이징)
+- [문서](#문서)
+- [라이선스](#라이선스)
 
 ---
 
@@ -12,6 +23,20 @@
 
 - API 키, 비밀번호, 토큰이 GitHub에 실수로 올라가는 것
 - README, CHANGELOG, 대시보드 등 문서들의 버전이 제각각인 것
+
+### 시각적 예시 (Visual Example)
+
+보안 위협이 감지되면 커밋이 즉시 차단됩니다:
+
+```ansi
+[1;31m🚨 COMMIT BLOCKED[0m
+--------------------------------------------------
+[1;33m❌ Sensitive data detected in:[0m config/secrets.json
+[1;33m❌ Pattern:[0m app_key.*['\"]PS[a-zA-Z0-9]{30,}['\"]
+
+[1;36m💡 Please remove the credentials or add them to .gitignore[0m
+--------------------------------------------------
+```
 
 ---
 
@@ -52,31 +77,23 @@ bash <(curl -fsSL https://raw.githubusercontent.com/20eung/ai-coding-safety/main
 
 ---
 
-## 구조
+## 구조 및 동작
 
-```
-글로벌 훅 (~/.githooks/)          프로젝트 훅 (.githooks/)
-─────────────────────────         ──────────────────────────────
-pre-commit                        pre-commit
-  공통 보안 패턴 검사       +       프로젝트 전용 파일/패턴 차단
-  .pem/.key/.env 차단
-  GitHub/OpenAI/AWS 키 감지
+| 구분 | 글로벌 훅 (`~/.githooks/`) | 프로젝트 훅 (`.githooks/`) |
+| :--- | :--- | :--- |
+| **pre-commit** | 공통 보안 패턴 검사 (.pem, .key, .env, API 키 등) | 프로젝트 전용 파일 및 패턴 차단 |
+| **pre-push** | 프로젝트 훅 체이닝 | 버전 일관성 검사 (`version.json` 기준) |
 
-pre-push                          pre-push
-  프로젝트 훅 체이닝        +       버전 일관성 검사
-                                  (version.json 기준)
-```
+### 체이닝 동작 방식
 
-### 체이닝 동작
-
-```
-git push
-  ↓
-~/.githooks/pre-push   (공통)
-  ↓
-.githooks/pre-push     (프로젝트, 있으면 자동 호출)
-  ↓
-모두 통과 → push 완료
+```mermaid
+graph TD
+    A[git push 실행] --> B[~/.githooks/pre-push <br/>글로벌 검사]
+    B --> C{.githooks/pre-push <br/>존재 여부}
+    C -- 있음 --> D[.githooks/pre-push <br/>프로젝트 검사]
+    C -- 없음 --> E[통과]
+    D --> E
+    E --> F[Push 완료]
 ```
 
 ---
@@ -128,3 +145,13 @@ bash scripts/release.sh v1.2.3   # 버전 직접 지정
 | `AGENTS.md` | AI 자동 설치 지침 (모든 AI 공통) |
 | `CLAUDE.md` | Claude Code 전용 지침 |
 | `GEMINI.md` | Gemini CLI 전용 지침 |
+
+---
+
+## 기여하기
+
+버그 제보나 기능 제안은 언제나 환영합니다! Issue를 남겨주시거나 Pull Request를 보내주세요.
+
+## 라이선스
+
+이 프로젝트는 [MIT License](LICENSE)를 따릅니다.
