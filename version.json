@@ -1,4 +1,4 @@
 {
-  "version": "v1.3.0",
+  "version": "v1.3.1",
   "description": "릴리즈 노트 자동 생성 + git log 기반 분류"
 }

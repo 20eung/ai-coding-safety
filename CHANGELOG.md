@@ -1,3 +1,13 @@
+## v1.3.1 (2026-03-28)
+
+### 🐛 Bug Fixes
+- fix: release.sh 불리언 비교 로직 수정 (Bash 호환성)
+
+### 📝 Documentation
+- docs: 실질적인 최종 배포 완료
+- docs: 버전 일관성 검사 섹션 및 시각적 예시 추가
+
+---
 ## v1.3.0 (2026-03-28)
 
 ### ✨ New Features
