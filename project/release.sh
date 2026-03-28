@@ -66,15 +66,40 @@ fi
 # ── Determine release notes ───────────────────────────────────
 # [CUSTOMIZE] Adjust the release notes file path if needed.
 NOTES_FILE="docs/release-notes/${CANONICAL}.md"
+RELEASE_NOTES=""
+
 if [ -f "$NOTES_FILE" ]; then
   RELEASE_NOTES=$(tail -n +3 "$NOTES_FILE")
   echo "📄 릴리즈 노트: $NOTES_FILE"
 elif [ -f "CHANGELOG.md" ]; then
   CANONICAL_ESC=$(echo "$CANONICAL" | sed 's/\./\\./g')
-  RELEASE_NOTES=$(awk "/^## ${CANONICAL_ESC} /{found=1; next} found && /^## /{exit} found{print}" CHANGELOG.md)
-  echo "📄 릴리즈 노트: CHANGELOG.md 에서 추출"
-else
-  RELEASE_NOTES="Release $CANONICAL"
+  RELEASE_NOTES=$(awk "/^## ${CANONICAL_ESC} /{found=1; next} found && /^## /{exit} found{print}" CHANGELOG.md | sed '/^[[:space:]]*$/d')
+  if [ -n "$RELEASE_NOTES" ]; then
+    echo "📄 릴리즈 노트: CHANGELOG.md 에서 추출"
+  fi
+fi
+
+# 릴리즈 노트가 없으면 작성 안내 후 중단
+if [ -z "$RELEASE_NOTES" ]; then
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ 릴리즈 노트가 없습니다 — 릴리즈를 중단합니다."
+  echo ""
+  echo "   아래 중 하나를 먼저 작성하세요:"
+  echo ""
+  echo "   A) 릴리즈 노트 파일 생성 (권장)"
+  echo "      $NOTES_FILE"
+  echo ""
+  echo "   B) CHANGELOG.md에 항목 추가"
+  echo "      ## $CANONICAL (YYYY-MM-DD) — 변경 내용 제목"
+  echo "      - 변경 내용 1"
+  echo "      - 변경 내용 2"
+  echo ""
+  echo "   작성 후 커밋하고 다시 실행하세요:"
+  echo "   git add <파일> && git commit -m 'docs: $CANONICAL 릴리즈 노트 추가'"
+  echo "   bash scripts/release.sh"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 1
 fi
 
 # ── [CUSTOMIZE] Release title ────────────────────────────────
