@@ -1,0 +1,88 @@
+#!/bin/bash
+# ai-coding-safety — Project Pre-push Hook Template
+# Checks version consistency across documents before pushing.
+# Customize the sections marked with [CUSTOMIZE] for your project.
+#
+# Install: git config core.hooksPath .githooks
+
+echo "🔖 버전 일관성 검사 중..."
+
+# ── [CUSTOMIZE] Version source of truth ───────────────────────
+# Set the file that holds the canonical version for your project.
+# Supported formats:
+#   JSON:    reports/dashboard/version.json  → { "version": "v1.2.3" }
+#   package: package.json                   → { "version": "1.2.3" }
+#   plain:   VERSION                         → v1.2.3
+VERSION_FILE="reports/dashboard/version.json"  # ← Change this
+
+# ── Read canonical version ─────────────────────────────────────
+if [ ! -f "$VERSION_FILE" ]; then
+  echo "⚠️  버전 파일 없음 ($VERSION_FILE) — 버전 검사를 건너뜁니다."
+  exit 0
+fi
+
+EXT="${VERSION_FILE##*.}"
+if [ "$EXT" = "json" ]; then
+  CANONICAL=$(python3 -c "
+import json, sys
+d = json.load(open('$VERSION_FILE'))
+v = d.get('version', '')
+print(v if v.startswith('v') else 'v' + v)
+" 2>/dev/null)
+else
+  CANONICAL=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+fi
+
+if [ -z "$CANONICAL" ]; then
+  echo "❌ ERROR: $VERSION_FILE 에서 버전을 읽을 수 없습니다."
+  exit 1
+fi
+
+CANONICAL_PLAIN="${CANONICAL#v}"
+echo "   기준 버전: $CANONICAL (from $VERSION_FILE)"
+echo ""
+
+FAILED=0
+
+check() {
+  local FILE="$1"
+  local PATTERN="$2"
+  local DESC="$3"
+  [ ! -f "$FILE" ] && return
+  if ! grep -qE "$PATTERN" "$FILE"; then
+    echo "   ❌ $FILE"
+    echo "      → $DESC 에 $CANONICAL 이 없습니다."
+    FAILED=1
+  else
+    echo "   ✅ $FILE"
+  fi
+}
+
+# ── [CUSTOMIZE] Files to version-check ────────────────────────
+# Add files that should contain the current version.
+# Format: check "FILE_PATH" "GREP_PATTERN" "DESCRIPTION"
+#
+# Examples:
+#   check "README.md"      "v${CANONICAL_PLAIN}"           "README 버전"
+#   check "CHANGELOG.md"   "^## ${CANONICAL} "             "CHANGELOG 최신 항목"
+#   check "package.json"   "\"version\": \"${CANONICAL_PLAIN}\"" "package.json"
+
+# check "README.md"    "${CANONICAL}"   "README 버전 표기"
+# check "CHANGELOG.md" "^## ${CANONICAL} " "CHANGELOG 최신 항목"
+
+echo ""
+
+if [ "$FAILED" -eq 1 ]; then
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ 버전 불일치 — 푸시가 차단되었습니다."
+  echo ""
+  echo "   위 파일들을 $CANONICAL 로 업데이트한 뒤 다시 push 하세요."
+  echo "   git add <파일> && git commit -m 'chore: 버전 $CANONICAL 동기화'"
+  echo "   git push"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 1
+fi
+
+echo "✅ 모든 문서 버전이 $CANONICAL 로 일치합니다."
+echo ""
+exit 0
