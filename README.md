@@ -28,13 +28,13 @@
 
 보안 위협이 감지되면 커밋이 즉시 차단됩니다:
 
-```ansi
-[1;31m🚨 COMMIT BLOCKED[0m
+```text
+🚨 COMMIT BLOCKED
 --------------------------------------------------
-[1;33m❌ Sensitive data detected in:[0m config/secrets.json
-[1;33m❌ Pattern:[0m app_key.*['\"]PS[a-zA-Z0-9]{30,}['\"]
+❌ Sensitive data detected in: config/secrets.json
+❌ Pattern: app_key.*['\"]PS[a-zA-Z0-9]{30,}['\"]
 
-[1;36m💡 Please remove the credentials or add them to .gitignore[0m
+💡 Please remove the credentials or add them to .gitignore
 --------------------------------------------------
 ```
 
@@ -45,7 +45,7 @@
 **이 저장소 URL을 AI에게 알려주고 이렇게 말하면 됩니다:**
 
 ```
-https://github.com/20eung/ai-coding-safety 보고 내 프로젝트에 설정해줘
+https://github.com/20eung/ai-coding-safety 참고해서 내 프로젝트에 설정해줘
 ```
 
 AI가 자동으로:
@@ -61,7 +61,7 @@ AI가 자동으로:
 
 ## 직접 설치하기
 
-### 글로벌 훅 (머신 전체, 최초 1회)
+### 글로벌 훅 (컴퓨터 전체, 최초 1회)
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/20eung/ai-coding-safety/main/scripts/install-global.sh)

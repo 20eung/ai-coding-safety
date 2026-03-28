@@ -43,11 +43,11 @@ git push    →  pre-push 훅 실행    →  통과하면 푸시 / 실패하면 
 
 | | 글로벌 훅 | 프로젝트 훅 |
 |---|---|---|
-| 적용 범위 | 이 머신의 모든 저장소 | 이 프로젝트만 |
+| 적용 범위 | 이 컴퓨터의 모든 저장소 | 이 프로젝트만 |
 | 설치 위치 | `~/.githooks/` | `.githooks/` |
 | 설정 | `git config --global core.hooksPath` | `git config core.hooksPath` |
 | 용도 | 공통 보안 검사 | 프로젝트 전용 규칙 |
-| GitHub 공유 | ❌ (머신 로컬) | ✅ (저장소에 포함) |
+| GitHub 공유 | ❌ (컴퓨터 로컬) | ✅ (저장소에 포함) |
 
 ### 체이닝 구조
 
@@ -66,7 +66,7 @@ git push 실행
 ## 한 줄 설치
 
 ```bash
-# 글로벌 훅 (머신 전체 적용, 최초 1회)
+# 글로벌 훅 (컴퓨터 전체 적용, 최초 1회)
 bash <(curl -fsSL https://raw.githubusercontent.com/20eung/ai-coding-safety/main/scripts/install-global.sh)
 
 # 프로젝트 훅 (프로젝트별, 프로젝트 루트에서 실행)

@@ -28,13 +28,13 @@
 
 Commits are immediately blocked when a security threat is detected:
 
-```ansi
-[1;31m🚨 COMMIT BLOCKED[0m
+```text
+🚨 COMMIT BLOCKED
 --------------------------------------------------
-[1;33m❌ Sensitive data detected in:[0m config/secrets.json
-[1;33m❌ Pattern:[0m app_key.*['\"]PS[a-zA-Z0-9]{30,}['\"]
+❌ Sensitive data detected in: config/secrets.json
+❌ Pattern: app_key.*['\"]PS[a-zA-Z0-9]{30,}['\"]
 
-[1;36m💡 Please remove the credentials or add them to .gitignore[0m
+💡 Please remove the credentials or add them to .gitignore
 --------------------------------------------------
 ```
 
@@ -45,7 +45,7 @@ Commits are immediately blocked when a security threat is detected:
 **Just tell your AI with this repository URL:**
 
 ```
-https://github.com/20eung/ai-coding-safety - Check this and set it up for my project
+https://github.com/20eung/ai-coding-safety - Refer to this and set it up for my project
 ```
 
 AI will automatically:
@@ -61,7 +61,7 @@ AI will automatically:
 
 ## Direct Installation
 
-### Global Hooks (Machine-wide, first time only)
+### Global Hooks (Computer-wide, first time only)
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/20eung/ai-coding-safety/main/scripts/install-global.sh)

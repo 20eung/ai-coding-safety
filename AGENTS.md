@@ -10,7 +10,7 @@
 Execute this setup when the user says any of the following:
 - "set up git safety hooks"
 - "install safety hooks"
-- "이 레파지토리 보고 내 프로젝트에 설정해줘"
+- "이 레파지토리 참고해서 내 프로젝트에 설정해줘"
 - "set up hooks from ai-coding-safety"
 - Any reference to this repository URL
 
