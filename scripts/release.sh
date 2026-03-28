@@ -11,8 +11,8 @@ set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-# ── [CUSTOMIZE] Version source of truth ───────────────────────
-VERSION_FILE="reports/dashboard/version.json"  # ← Change this
+# ── Version source of truth ───────────────────────────────────
+VERSION_FILE="version.json"
 
 # ── Determine version ─────────────────────────────────────────
 if [ -n "$1" ]; then

@@ -1,4 +1,7 @@
-# ai-coding-safety
+# ai-coding-safety v1.2.0
+
+[![Version](https://img.shields.io/badge/Version-1.2.0-blueviolet.svg)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > AI 코딩 어시스턴트와 협업할 때 발생하는 보안 사고를 방지하는 Git 훅 모음입니다.
 > Claude Code, Gemini CLI, OpenAI Codex 등 모든 AI 코딩 도구에서 동작합니다.

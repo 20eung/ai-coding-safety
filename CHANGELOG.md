@@ -1,3 +1,18 @@
+## v1.2.0 (2026-03-28) — 릴리즈 노트 자동 생성 + 버전 관리 체계 도입
+
+## 버그 수정
+- `project/release.sh`: 릴리즈 노트 없을 때 git log 기반 자동 생성
+  - `feat/fix/docs/chore` prefix별 섹션 자동 분류
+  - `docs/release-notes/vX.Y.Z.md` + `CHANGELOG.md` 자동 생성 후 커밋
+
+## 기타
+- `version.json` 도입 — 버전 단일 소스 (SSOT)
+- `README.md` 버전 뱃지 추가
+- `.githooks/pre-push` 버전 검사 활성화 (`version.json` 기준)
+- `scripts/release.sh` `VERSION_FILE` 경로 `version.json`으로 설정
+
+---
+
 ## v1.1.0 - 2026-03-28
 
 ### Added
