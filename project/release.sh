@@ -79,27 +79,67 @@ elif [ -f "CHANGELOG.md" ]; then
   fi
 fi
 
-# 릴리즈 노트가 없으면 작성 안내 후 중단
+# 릴리즈 노트가 없으면 git log 기반으로 자동 생성
 if [ -z "$RELEASE_NOTES" ]; then
+  echo "📝 릴리즈 노트가 없습니다. git log 기반으로 자동 생성합니다..."
   echo ""
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo "❌ 릴리즈 노트가 없습니다 — 릴리즈를 중단합니다."
+
+  PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+  if [ -n "$PREV_TAG" ]; then
+    GIT_LOG=$(git log "${PREV_TAG}..HEAD" --oneline --no-merges 2>/dev/null)
+  else
+    GIT_LOG=$(git log --oneline --no-merges 2>/dev/null | head -20)
+  fi
+
+  TODAY=$(date +%Y-%m-%d)
+
+  FEATS=$(echo "$GIT_LOG"  | grep -E "^[a-f0-9]+ feat:"     | sed 's/^[a-f0-9]* feat: /- /'     || true)
+  FIXES=$(echo "$GIT_LOG"  | grep -E "^[a-f0-9]+ fix:"      | sed 's/^[a-f0-9]* fix: /- /'      || true)
+  DOCS=$(echo "$GIT_LOG"   | grep -E "^[a-f0-9]+ docs:"     | sed 's/^[a-f0-9]* docs: /- /'     || true)
+  CHORES=$(echo "$GIT_LOG" | grep -E "^[a-f0-9]+ (chore|refactor|style):" | sed 's/^[a-f0-9]* [a-z]*: /- /' || true)
+  OTHERS=$(echo "$GIT_LOG" | grep -vE "^[a-f0-9]+ (feat|fix|docs|chore|refactor|style):" | sed 's/^[a-f0-9]* /- /' || true)
+
+  RELEASE_NOTES=""
+  [ -n "$FEATS"  ] && RELEASE_NOTES+="## 새 기능"$'\n'"$FEATS"$'\n\n'
+  [ -n "$FIXES"  ] && RELEASE_NOTES+="## 버그 수정"$'\n'"$FIXES"$'\n\n'
+  [ -n "$DOCS"   ] && RELEASE_NOTES+="## 문서"$'\n'"$DOCS"$'\n\n'
+  [ -n "$CHORES" ] && RELEASE_NOTES+="## 기타"$'\n'"$CHORES"$'\n\n'
+  [ -n "$OTHERS" ] && RELEASE_NOTES+="## 변경 사항"$'\n'"$OTHERS"$'\n\n'
+  [ -z "$RELEASE_NOTES" ] && RELEASE_NOTES="- 변경 사항 없음"
+
+  mkdir -p "docs/release-notes"
+  cat > "$NOTES_FILE" <<NOTES
+# $CANONICAL
+
+**릴리즈 날짜:** $TODAY
+
+---
+
+$RELEASE_NOTES
+NOTES
+
+  echo "   ✅ 생성: $NOTES_FILE"
+
+  CHANGELOG_ENTRY="## $CANONICAL ($TODAY)"$'\n'"$RELEASE_NOTES"$'\n---\n\n'
+  if [ -f "CHANGELOG.md" ]; then
+    EXISTING=$(cat CHANGELOG.md)
+    echo "$EXISTING" | awk -v entry="$CHANGELOG_ENTRY" '
+      /^## / && !inserted { print entry; inserted=1 }
+      { print }
+    ' > CHANGELOG.md
+  else
+    echo "# Changelog" > CHANGELOG.md
+    echo "" >> CHANGELOG.md
+    echo "$CHANGELOG_ENTRY" >> CHANGELOG.md
+  fi
+
+  echo "   ✅ 업데이트: CHANGELOG.md"
   echo ""
-  echo "   아래 중 하나를 먼저 작성하세요:"
+
+  git add "$NOTES_FILE" CHANGELOG.md
+  git commit -m "docs: $CANONICAL 릴리즈 노트 자동 생성"
+  git push origin HEAD
   echo ""
-  echo "   A) 릴리즈 노트 파일 생성 (권장)"
-  echo "      $NOTES_FILE"
-  echo ""
-  echo "   B) CHANGELOG.md에 항목 추가"
-  echo "      ## $CANONICAL (YYYY-MM-DD) — 변경 내용 제목"
-  echo "      - 변경 내용 1"
-  echo "      - 변경 내용 2"
-  echo ""
-  echo "   작성 후 커밋하고 다시 실행하세요:"
-  echo "   git add <파일> && git commit -m 'docs: $CANONICAL 릴리즈 노트 추가'"
-  echo "   bash scripts/release.sh"
-  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  exit 1
 fi
 
 # ── [CUSTOMIZE] Release title ────────────────────────────────
