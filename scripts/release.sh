@@ -36,77 +36,67 @@ if [ -z "$CANONICAL" ]; then
   exit 1
 fi
 
-# ── Check latest release and handle conflicts ────────────────
-LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+# ── Intelligent Version & Changelog Analysis ──────────────────
+HELPER_RESULT=$(python3 scripts/release_helper.py "$1")
+NEXT_VERSION=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['next_version'])")
+LATEST_TAG=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['latest_tag'])")
+BUMP_TYPE=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['bump_type'])")
+CHANGELOG_ENTRY=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['changelog_entry'])")
+HAS_COMMITS=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['has_commits'])")
 
-if [ "$CANONICAL" = "$LATEST_RELEASE" ]; then
-  # ── Prepare version bump previews ───────────────────────────
-  P_PATCH=$(python3 -c "import sys; v=sys.argv[1].lstrip('v'); p=list(map(int,v.split('.'))); p[2]+=1; print('v'+'.'.join(map(str,p)))" "$CANONICAL")
-  P_MINOR=$(python3 -c "import sys; v=sys.argv[1].lstrip('v'); p=list(map(int,v.split('.'))); p[1]+=1; p[2]=0; print('v'+'.'.join(map(str,p)))" "$CANONICAL")
-  P_MAJOR=$(python3 -c "import sys; v=sys.argv[1].lstrip('v'); p=list(map(int,v.split('.'))); p[0]+=1; p[1]=0; p[2]=0; print('v'+'.'.join(map(str,p)))" "$CANONICAL")
+# If version from version.json equals latest tag, we MUST bump
+if [ -z "$1" ] && [ "$CANONICAL" = "$LATEST_TAG" ]; then
+  if [ "$HAS_COMMITS" = "True" ]; then
+    echo "🤖 AI가 커밋 로그를 분석하여 버전을 자동으로 결정했습니다: $BUMP_TYPE ($CANONICAL -> $NEXT_VERSION)"
+    CANONICAL="$NEXT_VERSION"
+    DO_BUMP=true
+  else
+    echo "⚠️  이전 릴지즈 이후 새로운 커밋이 없습니다."
+    read -p "   그래도 진행하시겠습니까? (y/N): " -n 1 -r
+    echo ""
+    [[ ! $REPLY =~ ^[Yy]$ ]] && echo "   릴리즈를 취소합니다." && exit 0
+    DO_BUMP=false
+  fi
+elif [ -n "$1" ] && [ "$1" != "$LATEST_TAG" ]; then
+  # Explicit version provided as argument
+  CANONICAL="$1"
+  DO_BUMP=true
+  # Check if we should update version.json to match
+  CURRENT_JSON_V=$(python3 -c "import json; print(json.load(open('$VERSION_FILE')).get('version',''))")
+  [ "$CURRENT_JSON_V" != "$CANONICAL" ] && DO_BUMP=true
+else
+  DO_BUMP=false
+fi
 
-  echo "⚠️  현재 버전 ($CANONICAL) 이 이미 GitHub 릴리즈에 존재합니다."
-  echo "    원하시는 작업을 선택하세요:"
-  echo "    1) Patch ($CANONICAL -> $P_PATCH)"
-  echo "    2) Minor ($CANONICAL -> $P_MINOR)"
-  echo "    3) Major ($CANONICAL -> $P_MAJOR)"
-  echo "    4) Overwrite (기존 릴리즈 덮어쓰기)"
-  echo "    5) Cancel (중단)"
-  read -p "    선택 (1-5): " -n 1 -r
-  echo ""
-
-  case $REPLY in
-    1) BUMP="patch" ;;
-    2) BUMP="minor" ;;
-    3) BUMP="major" ;;
-    4) BUMP="overwrite" ;;
-    *) echo "   릴리즈를 취소합니다."; exit 0 ;;
-  esac
-
-  if [ "$BUMP" != "overwrite" ]; then
-    NEW_VERSION=$(python3 -c "
-import sys
-v = sys.argv[1].lstrip('v')
-parts = list(map(int, v.split('.')))
-bump = sys.argv[2]
-if bump == 'major': parts[0] += 1; parts[1] = 0; parts[2] = 0
-elif bump == 'minor': parts[1] += 1; parts[2] = 0
-elif bump == 'patch': parts[2] += 1
-print('v' + '.'.join(map(str, parts)))
-" "$CANONICAL" "$BUMP")
-
-    echo "🚀 버전을 $CANONICAL 에서 $NEW_VERSION 으로 올립니다..."
-    
-    # Update version.json
-    python3 -c "
+if [ "$DO_BUMP" = true ]; then
+  echo "🚀 버전을 $CANONICAL 로 업데이트하고 문서를 동기화합니다..."
+  
+  # Update version.json
+  python3 -c "
 import json, sys
 data = json.load(open('$VERSION_FILE'))
-data['version'] = '$NEW_VERSION'
+data['version'] = '$CANONICAL'
 with open('$VERSION_FILE', 'w') as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 "
-    
-    # Update README files
-    CANONICAL_PLAIN="${CANONICAL#v}"
-    NEW_VERSION_PLAIN="${NEW_VERSION#v}"
-    sed -i "s/# ai-coding-safety $CANONICAL/# ai-coding-safety $NEW_VERSION/g" README.md README.en.md
-    sed -i "s/Version-$CANONICAL_PLAIN-blueviolet/Version-$NEW_VERSION_PLAIN-blueviolet/g" README.md README.en.md
-    
-    # Update CHANGELOG.md (Prepend new section)
-    DATE=$(date +%Y-%m-%d)
-    NEW_HEADER="## $NEW_VERSION ($DATE)\n\n- \n\n---\n"
-    (echo -e "$NEW_HEADER"; cat CHANGELOG.md) > CHANGELOG.md.new
-    mv CHANGELOG.md.new CHANGELOG.md
+  
+  # Update README files
+  PREV_V_PLAIN="${LATEST_TAG#v}"
+  NEW_V_PLAIN="${CANONICAL#v}"
+  sed -i "s/# ai-coding-safety $LATEST_TAG/# ai-coding-safety $CANONICAL/g" README.md README.en.md
+  sed -i "s/Version-$PREV_V_PLAIN-blueviolet/Version-$NEW_V_PLAIN-blueviolet/g" README.md README.en.md
+  
+  # Update CHANGELOG.md (Prepend automated entry)
+  (echo -e "$CHANGELOG_ENTRY"; cat CHANGELOG.md) > CHANGELOG.md.new
+  mv CHANGELOG.md.new CHANGELOG.md
 
-    # Commit changes
-    git add "$VERSION_FILE" README.md README.en.md CHANGELOG.md
-    git commit -m "chore: version $NEW_VERSION bump"
-    git push origin main
-    
-    CANONICAL="$NEW_VERSION"
-    echo "✅ 버전 업데이트 및 푸시 완료: $CANONICAL"
-    echo ""
-  fi
+  # Commit changes
+  git add "$VERSION_FILE" README.md README.en.md CHANGELOG.md
+  git commit -m "chore: version $CANONICAL bump (automated)"
+  git push origin main
+  
+  echo "✅ 버전 업데이트 및 푸시 완료: $CANONICAL"
+  echo ""
 fi
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
