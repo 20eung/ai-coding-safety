@@ -42,11 +42,11 @@ NEXT_VERSION=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.
 LATEST_TAG=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['latest_tag'])")
 BUMP_TYPE=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['bump_type'])")
 CHANGELOG_ENTRY=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['changelog_entry'])")
-HAS_COMMITS=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['has_commits'])")
+HAS_COMMITS=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(str(json.load(sys.stdin)['has_commits']).lower())")
 
 # If version from version.json equals latest tag, we MUST bump
 if [ -z "$1" ] && [ "$CANONICAL" = "$LATEST_TAG" ]; then
-  if [ "$HAS_COMMITS" = "True" ]; then
+  if [ "$HAS_COMMITS" = "true" ]; then
     echo "🤖 AI가 커밋 로그를 분석하여 버전을 자동으로 결정했습니다: $BUMP_TYPE ($CANONICAL -> $NEXT_VERSION)"
     CANONICAL="$NEXT_VERSION"
     DO_BUMP=true
