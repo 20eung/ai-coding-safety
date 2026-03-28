@@ -1,3 +1,13 @@
+## v1.3.0 (2026-03-28)
+
+### ✨ New Features
+- feat: 지능형 자동 릴리즈 시스템 (SemVer 분석 및 릴리즈 노트 자동 생성)
+
+### 📝 Documentation
+- docs: 자동 릴리즈 테스트를 위한 공백 추가
+- docs: CHANGELOG.md v1.2.1, v1.2.2 누락된 내용 보완
+
+---
 ## v1.2.2 (2026-03-28)
 
 - README 시각적 오류 (ANSI escape code 노출) 해결

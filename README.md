@@ -1,8 +1,8 @@
-# ai-coding-safety v1.2.2
+# ai-coding-safety v1.3.0
 
 [한국어](README.md) | [English](README.en.md)
 
-[![Version](https://img.shields.io/badge/Version-1.2.2-blueviolet.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.3.0-blueviolet.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > AI 코딩 어시스턴트와 협업할 때 발생하는 보안 사고를 방지하는 Git 훅 모음입니다.
