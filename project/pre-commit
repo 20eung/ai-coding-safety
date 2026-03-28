@@ -1,0 +1,49 @@
+#!/bin/bash
+# ai-coding-safety — Project Pre-commit Hook Template
+# Customize the sections marked with [CUSTOMIZE] for your project.
+#
+# Install: git config core.hooksPath .githooks
+# Note: If global hook is installed, this file is called automatically.
+
+echo "🔍 [Project] 보안 검사 중..."
+
+# ── [CUSTOMIZE] Block project-specific config files ───────────
+# Add files that contain real credentials for your project.
+# Example: config/config.yaml, .secrets.json, etc.
+BLOCKED_FILES=(
+  # "config/config.yaml"
+  # "config/secrets.json"
+)
+
+for FILE in "${BLOCKED_FILES[@]}"; do
+  if git diff --cached --name-only | grep -q "^${FILE}$"; then
+    echo ""
+    echo "❌ ERROR: ${FILE} 을 커밋할 수 없습니다!"
+    echo "   이 파일에는 실제 인증 정보가 포함되어 있습니다."
+    echo "   💡 ${FILE}.example 을 대신 사용하세요."
+    exit 1
+  fi
+done
+
+# ── [CUSTOMIZE] Add project-specific credential patterns ───────
+# Add grep patterns for API keys specific to your service.
+# Example for KIS API: "app_key.*['\"]PS[a-zA-Z0-9]{30,}['\"]"
+PATTERNS=(
+  # "app_key.*['\"]PS[a-zA-Z0-9]{30,}['\"]"
+)
+
+for PATTERN in "${PATTERNS[@]}"; do
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "$PATTERN"; then
+    echo ""
+    echo "⚠️  프로젝트 전용 API 키 패턴 발견"
+    read -p "   계속 진행하시겠습니까? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      exit 1
+    fi
+  fi
+done
+
+echo "✅ [Project] 보안 검사 통과"
+echo ""
+exit 0

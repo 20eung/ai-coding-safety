@@ -1,0 +1,107 @@
+#!/bin/bash
+# ai-coding-safety — Global Pre-commit Hook
+# Blocks sensitive files and credential patterns across ALL repositories.
+# Install: git config --global core.hooksPath ~/.githooks
+
+echo "🔍 [Global] 보안 검사 중..."
+
+FAILED=0
+
+# ── 1. Private key files ───────────────────────────────────────
+BLOCKED_EXT=$(git diff --cached --name-only | grep -E "\.(pem|key|p12|pfx|pri|ppk)$|^id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$")
+if [ -n "$BLOCKED_EXT" ]; then
+  echo ""
+  echo "❌ 개인키/인증서 파일 커밋 차단:"
+  echo "$BLOCKED_EXT" | sed 's/^/   /'
+  FAILED=1
+fi
+
+# ── 2. .env files with real values ────────────────────────────
+ENV_FILES=$(git diff --cached --name-only | grep -E "^\.env(\..+)?$")
+if [ -n "$ENV_FILES" ]; then
+  echo ""
+  echo "❌ .env 파일 커밋 차단:"
+  echo "$ENV_FILES" | sed 's/^/   /'
+  echo "   💡 .env.example 을 대신 사용하세요."
+  FAILED=1
+fi
+
+# ── 3. Token cache / secret files ─────────────────────────────
+SECRET_FILES=$(git diff --cached --name-only | grep -E "(secret|credential|token_cache|\.token)\.(json|yaml|yml|txt)$")
+if [ -n "$SECRET_FILES" ]; then
+  echo ""
+  echo "❌ 시크릿/토큰 파일 커밋 차단:"
+  echo "$SECRET_FILES" | sed 's/^/   /'
+  FAILED=1
+fi
+
+# ── 4. Common credential patterns in file content ─────────────
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(py|js|ts|go|rb|java|yaml|yml|json|toml|env|sh|md)$")
+
+if [ -n "$STAGED" ]; then
+  # GitHub Personal Access Token
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "ghp_[a-zA-Z0-9]{36}"; then
+    echo ""
+    echo "⚠️  GitHub Personal Access Token 패턴 발견 (ghp_...)"
+    FAILED=1
+  fi
+
+  # OpenAI API Key
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "sk-[a-zA-Z0-9]{32,}"; then
+    echo ""
+    echo "⚠️  OpenAI API Key 패턴 발견 (sk-...)"
+    FAILED=1
+  fi
+
+  # AWS Access Key
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "AKIA[0-9A-Z]{16}"; then
+    echo ""
+    echo "⚠️  AWS Access Key 패턴 발견 (AKIA...)"
+    FAILED=1
+  fi
+
+  # Anthropic API Key
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "sk-ant-[a-zA-Z0-9\-]{32,}"; then
+    echo ""
+    echo "⚠️  Anthropic API Key 패턴 발견 (sk-ant-...)"
+    FAILED=1
+  fi
+
+  # Generic high-entropy strings in assignments (password = "xxxxx")
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qiE "(password|passwd|secret|token)\s*[=:]\s*['\"][a-zA-Z0-9+/]{20,}['\"]"; then
+    echo ""
+    echo "⚠️  하드코딩된 패스워드/시크릿 패턴 발견"
+    git diff --cached | grep "^+" | grep -v "^+++" | grep -iE "(password|passwd|secret|token)\s*[=:]\s*['\"][a-zA-Z0-9+/]{20,}['\"]" | head -3 | sed 's/^/   /'
+    echo ""
+    read -p "   실제 비밀값이 아닌가요? 계속 진행하시겠습니까? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      FAILED=1
+    fi
+  fi
+fi
+
+# ── 5. Call project-level pre-commit if exists ────────────────
+PROJECT_HOOK="$(git rev-parse --show-toplevel 2>/dev/null)/.githooks/pre-commit"
+if [ -f "$PROJECT_HOOK" ] && [ "$(git config core.hooksPath)" != "$HOME/.githooks" ]; then
+  # Already using project hooks — skip to avoid double execution
+  :
+elif [ -f "$PROJECT_HOOK" ]; then
+  bash "$PROJECT_HOOK"
+  PROJECT_EXIT=$?
+  if [ $PROJECT_EXIT -ne 0 ]; then
+    exit $PROJECT_EXIT
+  fi
+fi
+
+# ── Result ────────────────────────────────────────────────────
+echo ""
+if [ "$FAILED" -eq 1 ]; then
+  echo "❌ 보안 검사 실패 — 커밋이 차단되었습니다."
+  echo "   민감 정보를 제거하거나 .gitignore에 추가하세요."
+  exit 1
+fi
+
+echo "✅ [Global] 보안 검사 통과"
+echo ""
+exit 0

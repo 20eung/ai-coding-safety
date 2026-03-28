@@ -1,0 +1,15 @@
+#!/bin/bash
+# ai-coding-safety — Global Pre-push Hook
+# Chains to project-level pre-push if it exists.
+# Install: git config --global core.hooksPath ~/.githooks
+
+# ── Chain to project-level pre-push ───────────────────────────
+PROJECT_HOOK="$(git rev-parse --show-toplevel 2>/dev/null)/.githooks/pre-push"
+
+if [ -f "$PROJECT_HOOK" ]; then
+  bash "$PROJECT_HOOK"
+  exit $?
+fi
+
+# No project hook — pass through
+exit 0
