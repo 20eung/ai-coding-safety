@@ -40,11 +40,16 @@ fi
 LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
 
 if [ "$CANONICAL" = "$LATEST_RELEASE" ]; then
+  # ── Prepare version bump previews ───────────────────────────
+  P_PATCH=$(python3 -c "import sys; v=sys.argv[1].lstrip('v'); p=list(map(int,v.split('.'))); p[2]+=1; print('v'+'.'.join(map(str,p)))" "$CANONICAL")
+  P_MINOR=$(python3 -c "import sys; v=sys.argv[1].lstrip('v'); p=list(map(int,v.split('.'))); p[1]+=1; p[2]=0; print('v'+'.'.join(map(str,p)))" "$CANONICAL")
+  P_MAJOR=$(python3 -c "import sys; v=sys.argv[1].lstrip('v'); p=list(map(int,v.split('.'))); p[0]+=1; p[1]=0; p[2]=0; print('v'+'.'.join(map(str,p)))" "$CANONICAL")
+
   echo "⚠️  현재 버전 ($CANONICAL) 이 이미 GitHub 릴리즈에 존재합니다."
   echo "    원하시는 작업을 선택하세요:"
-  echo "    1) Patch (v1.2.0 -> v1.2.1)"
-  echo "    2) Minor (v1.2.0 -> v1.3.0)"
-  echo "    3) Major (v1.2.0 -> v2.0.0)"
+  echo "    1) Patch ($CANONICAL -> $P_PATCH)"
+  echo "    2) Minor ($CANONICAL -> $P_MINOR)"
+  echo "    3) Major ($CANONICAL -> $P_MAJOR)"
   echo "    4) Overwrite (기존 릴리즈 덮어쓰기)"
   echo "    5) Cancel (중단)"
   read -p "    선택 (1-5): " -n 1 -r

@@ -1,12 +1,16 @@
 ## v1.2.2 (2026-03-28)
 
-- 
+- README 시각적 오류 (ANSI escape code 노출) 해결
+- 명칭 순화 및 일관성 확보 ("보고" -> "참고해서", "머신" -> "컴퓨터")
+- `scripts/release.sh` 버전 업그레이드 미리보기 동적 표시 기능 추가 (Bug Fix)
 
 ---
 
 ## v1.2.1 (2026-03-28)
 
-- 
+- `scripts/release.sh` 자동 버전 업그레이드 및 문서 연동 로직 추가
+- `version.json`, `README.md`, `README.en.md`, `CHANGELOG.md` 버전 자동 동기화 기능 도입
+- GitHub 최신 릴리즈 감지 및 중복 버전 처리 정책(Patch/Minor/Major) 추가
 
 ---
 
