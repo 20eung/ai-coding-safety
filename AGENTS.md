@@ -110,6 +110,33 @@ git commit -m "chore: git safety hooks 설치 (ai-coding-safety)"
 
 ---
 
+## Release Procedure
+
+When the user asks to create a GitHub release, tag a version, or publish a new release:
+
+**MANDATORY: Always use the release script. Never run `gh release create` or `git tag` directly.**
+
+```bash
+bash scripts/release.sh              # auto-detect version from version.json
+bash scripts/release.sh v1.2.3       # specify version explicitly
+```
+
+### Why this is required
+
+- `gh release create` bypasses version consistency checks
+- `git tag` alone does not generate release notes
+- `scripts/release.sh` automatically:
+  1. Validates version consistency across all documents
+  2. Generates `docs/release-notes/{version}.md` if missing
+  3. Updates `CHANGELOG.md`
+  4. Creates the GitHub release with proper notes
+
+### If `scripts/release.sh` does not exist
+
+Install it first (see Step 4 of Setup Procedure above), then run it.
+
+---
+
 ## Customization After Install
 
 After basic installation, ask the user:

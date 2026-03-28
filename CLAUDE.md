@@ -24,6 +24,16 @@ Read these files in order before starting setup:
 4. `project/pre-commit` — project hook template
 5. `project/pre-push` — project version check template
 
+## Release Procedure
+
+When the user asks to create a GitHub release, tag a version, or publish a new release:
+
+**MANDATORY: Always use `bash scripts/release.sh`. Never run `gh release create` or `git tag` directly.**
+
+- Direct `gh release create` bypasses version checks and skips release note generation
+- `scripts/release.sh` auto-generates `docs/release-notes/{version}.md` and updates `CHANGELOG.md`
+- If `scripts/release.sh` does not exist, install it first (see AGENTS.md Step 4)
+
 ## Response Language
 
 Respond in the same language the user is using.
