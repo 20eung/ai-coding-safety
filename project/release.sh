@@ -54,10 +54,15 @@ fi
 # ── Check if release already exists ──────────────────────────
 if gh release view "$CANONICAL" > /dev/null 2>&1; then
   echo "⚠️  $CANONICAL 릴리즈가 이미 존재합니다."
-  read -p "   덮어쓰시겠습니까? (y/N): " -n 1 -r
-  echo ""
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "   릴리즈를 취소합니다."
+  if [ -t 0 ]; then
+    read -p "   덮어쓰시겠습니까? (y/N): " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "   릴리즈를 취소합니다."
+      exit 0
+    fi
+  else
+    echo "   비대화형 환경에서는 자동 취소합니다. --no-verify 또는 수동 실행 권장."
     exit 0
   fi
   gh release delete "$CANONICAL" --yes

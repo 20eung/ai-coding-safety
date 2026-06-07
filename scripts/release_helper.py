@@ -120,7 +120,7 @@ def main():
     if not commits:
         # Fallback if no commits found
         bump_type = "patch"
-        categorized = {"breaking":[], "feat":[], "fix":[], "docs":[], "chore":[]}
+        categorized = {"breaking":[], "feat":[], "fix":[], "perf":[], "docs":[], "test":[], "ci":[], "chore":[]}
     else:
         bump_type, categorized = analyze_commits(commits)
     

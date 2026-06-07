@@ -13,9 +13,12 @@
 - [Ask AI for Setup](#ask-ai-for-setup)
 - [Direct Installation](#direct-installation)
 - [Structure & Behavior](#structure--behavior)
+- [GitHub Release](#github-release)
 - [Customization](#customization)
 - [Emergency Override (--no-verify)](#emergency-override---no-verify)
 - [Documentation](#documentation)
+- [File List](#file-list)
+- [Contributing](#contributing)
 - [License](#license)
 
 ---

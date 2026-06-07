@@ -5,18 +5,30 @@
 # Usage:
 #   bash scripts/release.sh              # auto-detect version
 #   bash scripts/release.sh v1.2.3       # specify version
+#   bash scripts/release.sh v1.2.3 -f   # force overwrite existing release
 
 set -e
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
+# ── Parse arguments ───────────────────────────────────────────
+FORCE_OVERWRITE=false
+VERSION_ARG=""
+for arg in "$@"; do
+  if [ "$arg" = "-f" ] || [ "$arg" = "--force" ]; then
+    FORCE_OVERWRITE=true
+  elif [[ "$arg" == v* ]]; then
+    VERSION_ARG="$arg"
+  fi
+done
+
 # ── Version source of truth ───────────────────────────────────
 VERSION_FILE="version.json"
 
 # ── Determine version ─────────────────────────────────────────
-if [ -n "$1" ]; then
-  CANONICAL="$1"
+if [ -n "$VERSION_ARG" ]; then
+  CANONICAL="$VERSION_ARG"
 else
   EXT="${VERSION_FILE##*.}"
   if [ "$EXT" = "json" ]; then
@@ -37,7 +49,7 @@ if [ -z "$CANONICAL" ]; then
 fi
 
 # ── Intelligent Version & Changelog Analysis ──────────────────
-HELPER_RESULT=$(python3 scripts/release_helper.py "$1")
+HELPER_RESULT=$(python3 scripts/release_helper.py "$VERSION_ARG")
 NEXT_VERSION=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['next_version'])")
 LATEST_TAG=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['latest_tag'])")
 BUMP_TYPE=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin)['bump_type'])")
@@ -45,21 +57,26 @@ CHANGELOG_ENTRY=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(js
 HAS_COMMITS=$(echo "$HELPER_RESULT" | python3 -c "import sys, json; print(str(json.load(sys.stdin)['has_commits']).lower())")
 
 # If version from version.json equals latest tag, we MUST bump
-if [ -z "$1" ] && [ "$CANONICAL" = "$LATEST_TAG" ]; then
+if [ -z "$VERSION_ARG" ] && [ "$CANONICAL" = "$LATEST_TAG" ]; then
   if [ "$HAS_COMMITS" = "true" ]; then
     echo "🤖 AI가 커밋 로그를 분석하여 버전을 자동으로 결정했습니다: $BUMP_TYPE ($CANONICAL -> $NEXT_VERSION)"
     CANONICAL="$NEXT_VERSION"
     DO_BUMP=true
   else
     echo "⚠️  이전 릴리즈 이후 새로운 커밋이 없습니다."
-    read -p "   그래도 진행하시겠습니까? (y/N): " -n 1 -r
-    echo ""
-    [[ ! $REPLY =~ ^[Yy]$ ]] && echo "   릴리즈를 취소합니다." && exit 0
+    if [ -t 0 ]; then
+      read -p "   그래도 진행하시겠습니까? (y/N): " -n 1 -r
+      echo ""
+      [[ ! $REPLY =~ ^[Yy]$ ]] && echo "   릴리즈를 취소합니다." && exit 0
+    else
+      echo "   비대화형 환경에서는 자동 취소합니다. --force 옵션으로 강제 진행 가능."
+      exit 0
+    fi
     DO_BUMP=false
   fi
-elif [ -n "$1" ] && [ "$1" != "$LATEST_TAG" ]; then
+elif [ -n "$VERSION_ARG" ] && [ "$VERSION_ARG" != "$LATEST_TAG" ]; then
   # Explicit version provided as argument
-  CANONICAL="$1"
+  CANONICAL="$VERSION_ARG"
   DO_BUMP=true
   # Check if we should update version.json to match
   CURRENT_JSON_V=$(python3 -c "import json; print(json.load(open('$VERSION_FILE')).get('version',''))")
@@ -83,17 +100,23 @@ with open('$VERSION_FILE', 'w') as f:
   # Update README files
   PREV_V_PLAIN="${LATEST_TAG#v}"
   NEW_V_PLAIN="${CANONICAL#v}"
-  sed -i "s/# ai-coding-safety $LATEST_TAG/# ai-coding-safety $CANONICAL/g" README.md README.en.md
-  sed -i "s/Version-$PREV_V_PLAIN-blueviolet/Version-$NEW_V_PLAIN-blueviolet/g" README.md README.en.md
+  LATEST_TAG_ESC=$(echo "$LATEST_TAG" | sed 's/\./\\./g')
+  PREV_V_ESC=$(echo "$PREV_V_PLAIN" | sed 's/\./\\./g')
+  sed -i "s/# ai-coding-safety ${LATEST_TAG_ESC}/# ai-coding-safety ${CANONICAL}/g" README.md README.en.md
+  sed -i "s/Version-${PREV_V_ESC}-blueviolet/Version-${NEW_V_PLAIN}-blueviolet/g" README.md README.en.md
   
   # Update CHANGELOG.md (Prepend automated entry)
-  (echo -e "$CHANGELOG_ENTRY"; cat CHANGELOG.md) > CHANGELOG.md.new
+  if [ -f CHANGELOG.md ]; then
+    (echo -e "$CHANGELOG_ENTRY"; cat CHANGELOG.md) > CHANGELOG.md.new
+  else
+    echo -e "$CHANGELOG_ENTRY" > CHANGELOG.md.new
+  fi
   mv CHANGELOG.md.new CHANGELOG.md
 
   # Commit changes
   git add "$VERSION_FILE" README.md README.en.md CHANGELOG.md
   git commit -m "chore: version $CANONICAL bump (automated)"
-  git push origin main
+  git push origin "$(git rev-parse --abbrev-ref HEAD)"
   
   echo "✅ 버전 업데이트 및 푸시 완료: $CANONICAL"
   echo ""
@@ -116,11 +139,16 @@ fi
 
 # ── Check if release already exists (for overwrite case) ────────
 if gh release view "$CANONICAL" > /dev/null 2>&1; then
-  if [ "$DO_BUMP" != "overwrite" ]; then
-    echo "⚠️  $CANONICAL 릴리즈가 이미 대기 중입니다."
-    read -p "   덮어쓰시겠습니까? (y/N): " -n 1 -r
-    echo ""
-    [[ ! $REPLY =~ ^[Yy]$ ]] && echo "   릴리즈를 취소합니다." && exit 0
+  if [ "$FORCE_OVERWRITE" != "true" ]; then
+    echo "⚠️  $CANONICAL 릴리즈가 이미 존재합니다."
+    if [ -t 0 ]; then
+      read -p "   덮어쓰시겠습니까? (y/N): " -n 1 -r
+      echo ""
+      [[ ! $REPLY =~ ^[Yy]$ ]] && echo "   릴리즈를 취소합니다." && exit 0
+    else
+      echo "   비대화형 환경에서는 자동 취소합니다. -f 옵션으로 강제 덮어쓰기 가능."
+      exit 0
+    fi
   fi
   gh release delete "$CANONICAL" --yes
 fi

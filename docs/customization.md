@@ -35,8 +35,8 @@ PATTERNS=(
 ### 버전 파일 경로 설정
 
 ```bash
-# JSON 파일 (version 필드)
-VERSION_FILE="reports/dashboard/version.json"
+# JSON 파일 (version 필드) — 기본값
+VERSION_FILE="version.json"
 
 # package.json
 VERSION_FILE="package.json"

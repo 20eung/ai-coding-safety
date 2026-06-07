@@ -8,7 +8,7 @@ echo "🔍 [Global] 보안 검사 중..."
 FAILED=0
 
 # ── 1. Private key files ───────────────────────────────────────
-BLOCKED_EXT=$(git diff --cached --name-only | grep -E "\.(pem|key|p12|pfx|pri|ppk)$|^id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$")
+BLOCKED_EXT=$(git diff --cached --name-only | grep -E "\.(pem|key|p12|pfx|pri|ppk)$|(^|/)id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$")
 if [ -n "$BLOCKED_EXT" ]; then
   echo ""
   echo "❌ 개인키/인증서 파일 커밋 차단:"
@@ -17,7 +17,7 @@ if [ -n "$BLOCKED_EXT" ]; then
 fi
 
 # ── 2. .env files with real values ────────────────────────────
-ENV_FILES=$(git diff --cached --name-only | grep -E "^\.env(\..+)?$")
+ENV_FILES=$(git diff --cached --name-only | grep -E "(^|/)\.env(\..+)?$")
 if [ -n "$ENV_FILES" ]; then
   echo ""
   echo "❌ .env 파일 커밋 차단:"
@@ -61,7 +61,7 @@ if [ -n "$STAGED" ]; then
   fi
 
   # GitHub Fine-grained PAT
-  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "github_pat_[a-zA-Z0-9_]{82}"; then
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "github_pat_[a-zA-Z0-9_]{50,}"; then
     echo ""
     echo "⚠️  GitHub Fine-grained PAT 패턴 발견 (github_pat_...)"
     FAILED=1
