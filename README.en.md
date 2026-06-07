@@ -14,6 +14,7 @@
 - [Direct Installation](#direct-installation)
 - [Structure & Behavior](#structure--behavior)
 - [Customization](#customization)
+- [Emergency Override (--no-verify)](#emergency-override---no-verify)
 - [Documentation](#documentation)
 - [License](#license)
 
@@ -143,6 +144,23 @@ Modify files after installation to suit your project:
 - `.githooks/pre-push` → Set version file path and target documents
 
 Details: [docs/customization.md](docs/customization.md)
+
+---
+
+## Emergency Override (--no-verify)
+
+If a hook incorrectly blocks your commit or push, you can temporarily bypass it:
+
+```bash
+# Bypass commit hooks
+git commit --no-verify -m "message"
+
+# Bypass push hooks
+git push --no-verify
+```
+
+> ⚠️ This option **skips all security checks**. Use only when necessary,
+> and investigate the false positive pattern afterwards.
 
 ---
 

@@ -1,4 +1,4 @@
 {
   "version": "v1.4.0",
-  "description": "릴리즈 노트 자동 생성 + git log 기반 분류"
+  "description": "보안 패턴 확장 + CI 환경 지원 + 구조 개선"
 }

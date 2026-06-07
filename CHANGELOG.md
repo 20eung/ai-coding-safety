@@ -1,7 +1,30 @@
 ## v1.4.0 (2026-06-07)
 
+### 🐛 Bug Fixes
+- fix: global/pre-commit SECRET_FILES `$(` 문법 오류 수정 (토큰 파일 검사 비동작 버그)
+- fix: scripts/release.sh `$BUMP` 미정의 변수 → `$DO_BUMP`로 수정 (기존 릴리즈 덮어쓰기 오동작)
+- fix: scripts/release.sh 오타 수정 ("릴지즈" → "릴리즈")
+- fix: global/pre-commit + project/pre-commit CI 비대화형 환경 `read -p` hang 수정 (TTY 감지 자동 차단)
+
+### ✨ New Features
+- feat: global/pre-commit 보안 패턴 추가 — Google/Gemini, Stripe, HuggingFace, OpenAI Project Key(sk-proj-), GitHub Fine-grained PAT
+- feat: global/pre-push main/master 직접 push 경고 추가 (대화형 확인)
+- feat: scripts/release_helper.py perf/test/ci/build prefix 별도 분류 및 이모지 구분
+
+### 🔧 CI / Build
+- refactor: scripts/install-hooks.sh install-project.sh 래퍼로 중복 제거
+- chore: scripts/install-project.sh release_helper.py 다운로드 자동 추가
+- chore: .gitignore 신규 생성 (.bkit/ 제외)
+
 ### 🔩 Others
-- fix/feat/docs: 전체 점검 및 개선 (v1.4.0 준비)
+- refactor: project/pre-push VERSION_FILE 기본값 수정 (`reports/dashboard/version.json` → `version.json`)
+- refactor: project/release.sh VERSION_FILE 기본값 수정
+
+### 📝 Documentation
+- docs: README.md 긴급 우회(--no-verify) 섹션 및 목차 추가
+- docs: docs/why-hooks.md --no-verify 안내 추가
+- docs: docs/customization.md pyproject.toml 미지원 명시 및 대안 안내
+- docs: AGENTS.md Step 5 staged 파일 없이 훅 실제 검증하는 방법 보완
 
 ---
 ## v1.3.2 (2026-03-28)
