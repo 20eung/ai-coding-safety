@@ -1,11 +1,17 @@
 # AI 오케스트레이션 프레임워크 상태 파일 (세션 로컬, 민감 정보 포함 가능)
 .bkit/
 .claude/
+.gemini/
 .pdca-status.json
+
+# 릴리즈 노트 (자동 생성, 커밋 불필요)
 docs/release-notes/
-.DS_Store
-Thumbs.db
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

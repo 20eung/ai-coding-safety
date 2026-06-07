@@ -78,9 +78,6 @@ elif [ -n "$VERSION_ARG" ] && [ "$VERSION_ARG" != "$LATEST_TAG" ]; then
   # Explicit version provided as argument
   CANONICAL="$VERSION_ARG"
   DO_BUMP=true
-  # Check if we should update version.json to match
-  CURRENT_JSON_V=$(python3 -c "import json; print(json.load(open('$VERSION_FILE')).get('version',''))")
-  [ "$CURRENT_JSON_V" != "$CANONICAL" ] && DO_BUMP=true
 else
   DO_BUMP=false
 fi
@@ -102,9 +99,11 @@ with open('$VERSION_FILE', 'w') as f:
   NEW_V_PLAIN="${CANONICAL#v}"
   LATEST_TAG_ESC=$(echo "$LATEST_TAG" | sed 's/\./\\./g')
   PREV_V_ESC=$(echo "$PREV_V_PLAIN" | sed 's/\./\\./g')
-  sed -i "s/# ai-coding-safety ${LATEST_TAG_ESC}/# ai-coding-safety ${CANONICAL}/g" README.md README.en.md
-  sed -i "s/Version-${PREV_V_ESC}-blueviolet/Version-${NEW_V_PLAIN}-blueviolet/g" README.md README.en.md
-  
+  sed -i "s/# ai-coding-safety ${LATEST_TAG_ESC}/# ai-coding-safety ${CANONICAL}/g" README.md
+  sed -i "s/Version-${PREV_V_ESC}-blueviolet/Version-${NEW_V_PLAIN}-blueviolet/g" README.md
+  [ -f README.en.md ] && sed -i "s/# ai-coding-safety ${LATEST_TAG_ESC}/# ai-coding-safety ${CANONICAL}/g" README.en.md
+  [ -f README.en.md ] && sed -i "s/Version-${PREV_V_ESC}-blueviolet/Version-${NEW_V_PLAIN}-blueviolet/g" README.en.md
+
   # Update CHANGELOG.md (Prepend automated entry)
   if [ -f CHANGELOG.md ]; then
     (echo -e "$CHANGELOG_ENTRY"; cat CHANGELOG.md) > CHANGELOG.md.new
@@ -113,8 +112,10 @@ with open('$VERSION_FILE', 'w') as f:
   fi
   mv CHANGELOG.md.new CHANGELOG.md
 
-  # Commit changes
-  git add "$VERSION_FILE" README.md README.en.md CHANGELOG.md
+  # Collect files to commit (only existing ones)
+  FILES_TO_ADD="$VERSION_FILE README.md CHANGELOG.md"
+  [ -f README.en.md ] && FILES_TO_ADD="$FILES_TO_ADD README.en.md"
+  git add $FILES_TO_ADD
   git commit -m "chore: version $CANONICAL bump (automated)"
   git push origin "$(git rev-parse --abbrev-ref HEAD)"
   
@@ -130,11 +131,7 @@ echo ""
 # ── Run version consistency check ────────────────────────────
 PROJECT_HOOK=".githooks/pre-push"
 if [ -f "$PROJECT_HOOK" ]; then
-  bash "$PROJECT_HOOK"
-  if [ $? -ne 0 ]; then
-    echo "❌ 버전 검사 실패 — 릴리즈를 중단합니다."
-    exit 1
-  fi
+  bash "$PROJECT_HOOK" || { echo "❌ 버전 검사 실패 — 릴리즈를 중단합니다."; exit 1; }
 fi
 
 # ── Check if release already exists (for overwrite case) ────────

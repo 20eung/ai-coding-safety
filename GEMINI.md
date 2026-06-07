@@ -14,6 +14,15 @@ When the user asks to set up git safety hooks, read `AGENTS.md` and follow the p
 - Always verify hooks by running them after installation
 - Read all hook template files from this repository before starting
 
+## File Fetch Order
+
+Read these files in order before starting setup:
+1. `AGENTS.md` — full procedure
+2. `global/pre-commit` — global security hook
+3. `global/pre-push` — global pre-push hook (main/master push 경고 + 체이닝)
+4. `project/pre-commit` — project hook template
+5. `project/pre-push` — project version check template
+
 ## Release Procedure
 
 When the user asks to create a GitHub release, tag a version, or publish a new release:

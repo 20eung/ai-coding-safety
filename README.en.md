@@ -9,8 +9,8 @@
 > Works with all AI coding tools including Claude Code, Gemini CLI, and OpenAI Codex.
 
 ## Table of Contents
-- [What it Prevents](#what-it-prevents)
-- [Ask AI for Setup](#ask-ai-for-setup)
+- [What it prevents](#what-it-prevents)
+- [Ask AI for setup](#ask-ai-for-setup)
 - [Direct Installation](#direct-installation)
 - [Structure & Behavior](#structure--behavior)
 - [GitHub Release](#github-release)
@@ -186,6 +186,9 @@ git push --no-verify
 | `project/release.sh` | Release script template |
 | `scripts/install-global.sh` | Global hook install script |
 | `scripts/install-project.sh` | Project hook install script |
+| `scripts/install-hooks.sh` | Wrapper for install-project.sh (backward compat) |
+| `scripts/release.sh` | Advanced release script (auto version analysis) |
+| `scripts/release_helper.py` | Commit categorization and SemVer analysis utility |
 | `AGENTS.md` | AI auto-install instructions (Common) |
 | `CLAUDE.md` | Claude Code specific instructions |
 | `GEMINI.md` | Gemini CLI specific instructions |

@@ -55,6 +55,8 @@ def analyze_commits(commits):
             categorized["test"].append(msg)
         elif low_msg.startswith(("ci:", "build:")):
             categorized["ci"].append(msg)
+        elif low_msg.startswith("revert:"):
+            categorized["chore"].append(msg)  # revert → Others 버킷
         else:
             # chore, refactor, style ...
             if not low_msg.startswith("chore: version"): # skip version bump commits

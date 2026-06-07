@@ -10,7 +10,7 @@
 Execute this setup when the user says any of the following:
 - "set up git safety hooks"
 - "install safety hooks"
-- "이 레파지토리 참고해서 내 프로젝트에 설정해줘"
+- "이 레포지토리 참고해서 내 프로젝트에 설정해줘"
 - "set up hooks from ai-coding-safety"
 - Any reference to this repository URL
 
@@ -22,7 +22,7 @@ Execute this setup when the user says any of the following:
 
 Fetch and read the following files from this repository before proceeding:
 - `global/pre-commit` — global security hook content
-- `global/pre-push` — global version check hook content
+- `global/pre-push` — global hook: main/master 직접 push 경고 + 프로젝트 훅 체이닝
 - `project/pre-commit` — project hook template
 - `project/pre-push` — project hook template
 - `scripts/install-global.sh` — global install script

@@ -24,7 +24,7 @@ fi
 PROJECT_HOOK="$(git rev-parse --show-toplevel 2>/dev/null)/.githooks/pre-push"
 
 if [ -f "$PROJECT_HOOK" ]; then
-  bash "$PROJECT_HOOK"
+  bash "$PROJECT_HOOK" "$@"
   exit $?
 fi
 

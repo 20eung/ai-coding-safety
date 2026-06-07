@@ -44,11 +44,7 @@ echo ""
 # ── Run version consistency check ────────────────────────────
 PROJECT_HOOK=".githooks/pre-push"
 if [ -f "$PROJECT_HOOK" ]; then
-  bash "$PROJECT_HOOK"
-  if [ $? -ne 0 ]; then
-    echo "❌ 버전 검사 실패 — 릴리즈를 중단합니다."
-    exit 1
-  fi
+  bash "$PROJECT_HOOK" || { echo "❌ 버전 검사 실패 — 릴리즈를 중단합니다."; exit 1; }
 fi
 
 # ── Check if release already exists ──────────────────────────
@@ -127,15 +123,10 @@ NOTES
 
   CHANGELOG_ENTRY="## $CANONICAL ($TODAY)"$'\n'"$RELEASE_NOTES"$'\n---\n\n'
   if [ -f "CHANGELOG.md" ]; then
-    EXISTING=$(cat CHANGELOG.md)
-    echo "$EXISTING" | awk -v entry="$CHANGELOG_ENTRY" '
-      /^## / && !inserted { print entry; inserted=1 }
-      { print }
-    ' > CHANGELOG.md
+    (printf '%s\n' "$CHANGELOG_ENTRY"; cat CHANGELOG.md) > CHANGELOG.md.new
+    mv CHANGELOG.md.new CHANGELOG.md
   else
-    echo "# Changelog" > CHANGELOG.md
-    echo "" >> CHANGELOG.md
-    echo "$CHANGELOG_ENTRY" >> CHANGELOG.md
+    printf '# CHANGELOG\n\n%s\n' "$CHANGELOG_ENTRY" > CHANGELOG.md
   fi
 
   echo "   ✅ 업데이트: CHANGELOG.md"
