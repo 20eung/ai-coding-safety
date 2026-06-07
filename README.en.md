@@ -187,8 +187,7 @@ git push --no-verify
 | `scripts/install-global.sh` | Global hook install script |
 | `scripts/install-project.sh` | Project hook install script |
 | `scripts/install-hooks.sh` | Wrapper for install-project.sh (backward compat) |
-| `scripts/release.sh` | Advanced release script (auto version analysis) |
-| `scripts/release_helper.py` | Commit categorization and SemVer analysis utility |
+| `scripts/release.sh` | Release script (version.json based) |
 | `AGENTS.md` | AI auto-install instructions (Common) |
 | `CLAUDE.md` | Claude Code specific instructions |
 | `GEMINI.md` | Gemini CLI specific instructions |

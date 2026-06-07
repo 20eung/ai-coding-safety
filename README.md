@@ -187,8 +187,7 @@ git push --no-verify
 | `scripts/install-global.sh` | 글로벌 훅 설치 스크립트 |
 | `scripts/install-project.sh` | 프로젝트 훅 설치 스크립트 |
 | `scripts/install-hooks.sh` | install-project.sh 래퍼 (하위 호환) |
-| `scripts/release.sh` | 고급 릴리즈 스크립트 (자동 버전 분석) |
-| `scripts/release_helper.py` | 커밋 분류 및 SemVer 분석 유틸리티 |
+| `scripts/release.sh` | 릴리즈 스크립트 (version.json 기반) |
 | `AGENTS.md` | AI 자동 설치 지침 (모든 AI 공통) |
 | `CLAUDE.md` | Claude Code 전용 지침 |
 | `GEMINI.md` | Gemini CLI 전용 지침 |
