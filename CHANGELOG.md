@@ -1,3 +1,10 @@
+## v1.8.0 (2026-06-08)
+- refactor: scripts/release.sh 단순화 및 release_helper.py 의존성 제거
+- chore: version v1.7.0 bump (automated)
+- fix: 2차 점검 수정 — scripts/release.sh 안전성 개선 및 문서 정확성 보완
+
+---
+
 ## v1.7.0 (2026-06-08)
 
 ### 🐛 Bug Fixes
