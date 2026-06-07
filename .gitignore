@@ -1,0 +1,9 @@
+# AI 오케스트레이션 프레임워크 상태 파일 (세션 로컬, 민감 정보 포함 가능)
+.bkit/
+
+# 릴리즈 노트 (자동 생성)
+docs/release-notes/
+
+# OS
+.DS_Store
+Thumbs.db

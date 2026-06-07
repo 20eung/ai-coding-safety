@@ -1,7 +1,24 @@
 #!/bin/bash
 # ai-coding-safety — Global Pre-push Hook
-# Chains to project-level pre-push if it exists.
+# Warns on direct push to main/master, then chains to project-level pre-push.
 # Install: git config --global core.hooksPath ~/.githooks
+
+# ── Warn on direct push to main/master ────────────────────────
+CURRENT_BRANCH=$(git symbolic-ref HEAD 2>/dev/null | sed 's|refs/heads/||')
+if [[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "master" ]]; then
+  echo ""
+  echo "⚠️  [Global] main/master 브랜치에 직접 push 하려고 합니다."
+  if [ -t 0 ]; then
+    read -p "   계속 진행하시겠습니까? (y/N): " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "   push를 취소했습니다. feature 브랜치를 사용하세요."
+      exit 1
+    fi
+  else
+    echo "   [비대화형 환경] main/master 직접 push — 계속 진행합니다."
+  fi
+fi
 
 # ── Chain to project-level pre-push ───────────────────────────
 PROJECT_HOOK="$(git rev-parse --show-toplevel 2>/dev/null)/.githooks/pre-push"

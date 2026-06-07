@@ -75,12 +75,18 @@ VERSION_FILE="package.json"
 ### Python 프로젝트
 
 ```bash
-VERSION_FILE="pyproject.toml"
-# 또는
-VERSION_FILE="src/__version__.py"
+# pyproject.toml / setup.cfg 등 TOML 포맷은 현재 pre-push 훅에서
+# 자동 파싱을 지원하지 않습니다. 아래 두 가지 방법 중 하나를 선택하세요.
+
+# 방법 1: 별도 version.json 유지 (권장)
+VERSION_FILE="version.json"
+
+# 방법 2: VERSION 텍스트 파일 사용
+VERSION_FILE="VERSION"   # 파일 내용: v1.2.3 (한 줄)
 ```
 
-`pre-push` 훅의 버전 읽기 로직을 해당 포맷에 맞게 수정하세요.
+> **참고:** `pyproject.toml`을 직접 소스로 쓰려면 `pre-push` 훅의 버전 읽기 로직에
+> `toml` 파싱 코드를 추가해야 합니다. Python 3.11+ 표준 라이브러리 `tomllib`을 사용할 수 있습니다.
 
 ### 커스텀 버전 파일
 

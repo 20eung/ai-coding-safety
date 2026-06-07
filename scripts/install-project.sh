@@ -52,6 +52,14 @@ else
   curl -fsSL "$REPO/project/release.sh" -o "scripts/release.sh"
 fi
 
+# release_helper.py
+if [ -f "scripts/release_helper.py" ]; then
+  echo "   ⏭️  scripts/release_helper.py 이미 존재 — 건너뜁니다."
+else
+  echo "   📥 scripts/release_helper.py 설치 중..."
+  curl -fsSL "$REPO/scripts/release_helper.py" -o "scripts/release_helper.py"
+fi
+
 chmod +x "$HOOKS_DIR/pre-commit" "$HOOKS_DIR/pre-push" "scripts/release.sh"
 git config core.hooksPath "$HOOKS_DIR"
 

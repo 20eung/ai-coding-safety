@@ -51,7 +51,7 @@ if [ -z "$1" ] && [ "$CANONICAL" = "$LATEST_TAG" ]; then
     CANONICAL="$NEXT_VERSION"
     DO_BUMP=true
   else
-    echo "⚠️  이전 릴지즈 이후 새로운 커밋이 없습니다."
+    echo "⚠️  이전 릴리즈 이후 새로운 커밋이 없습니다."
     read -p "   그래도 진행하시겠습니까? (y/N): " -n 1 -r
     echo ""
     [[ ! $REPLY =~ ^[Yy]$ ]] && echo "   릴리즈를 취소합니다." && exit 0
@@ -116,7 +116,7 @@ fi
 
 # ── Check if release already exists (for overwrite case) ────────
 if gh release view "$CANONICAL" > /dev/null 2>&1; then
-  if [ "$BUMP" != "overwrite" ]; then
+  if [ "$DO_BUMP" != "overwrite" ]; then
     echo "⚠️  $CANONICAL 릴리즈가 이미 대기 중입니다."
     read -p "   덮어쓰시겠습니까? (y/N): " -n 1 -r
     echo ""

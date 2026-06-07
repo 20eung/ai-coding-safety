@@ -30,7 +30,10 @@ def analyze_commits(commits):
         "breaking": [],
         "feat": [],
         "fix": [],
+        "perf": [],
         "docs": [],
+        "test": [],
+        "ci": [],
         "chore": []
     }
     
@@ -44,10 +47,16 @@ def analyze_commits(commits):
             if bump == "patch": bump = "minor"
         elif low_msg.startswith("fix:"):
             categorized["fix"].append(msg)
+        elif low_msg.startswith("perf:"):
+            categorized["perf"].append(msg)
         elif low_msg.startswith("docs:"):
             categorized["docs"].append(msg)
+        elif low_msg.startswith("test:"):
+            categorized["test"].append(msg)
+        elif low_msg.startswith(("ci:", "build:")):
+            categorized["ci"].append(msg)
         else:
-            # chore, build, ci, refactor, style, test, perf...
+            # chore, refactor, style ...
             if not low_msg.startswith("chore: version"): # skip version bump commits
                 categorized["chore"].append(msg)
                 
@@ -59,10 +68,13 @@ def format_changelog(bump, categorized, next_version):
     
     mapping = {
         "breaking": "🚨 Breaking Changes",
-        "feat": "✨ New Features",
-        "fix": "🐛 Bug Fixes",
-        "docs": "📝 Documentation",
-        "chore": "🔧 Others"
+        "feat":     "✨ New Features",
+        "fix":      "🐛 Bug Fixes",
+        "perf":     "⚡ Performance",
+        "docs":     "📝 Documentation",
+        "test":     "🧪 Tests",
+        "ci":       "🔧 CI / Build",
+        "chore":    "🔩 Others"
     }
     
     found_any = False

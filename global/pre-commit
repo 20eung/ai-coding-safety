@@ -38,18 +38,46 @@ fi
 # ── 4. Common credential patterns in file content ─────────────
 STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.(py|js|ts|go|rb|java|yaml|yml|json|toml|env|sh|md)$")
 
+# CI/CD 비대화형 환경 감지 (TTY 없으면 자동 차단)
+_interactive_check() {
+  if [ -t 0 ]; then
+    read -p "   실제 비밀값이 아닌가요? 계속 진행하시겠습니까? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      FAILED=1
+    fi
+  else
+    echo "   [비대화형 환경] 자동 차단합니다."
+    FAILED=1
+  fi
+}
+
 if [ -n "$STAGED" ]; then
-  # GitHub Personal Access Token
+  # GitHub Personal Access Token (classic)
   if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "ghp_[a-zA-Z0-9]{36}"; then
     echo ""
     echo "⚠️  GitHub Personal Access Token 패턴 발견 (ghp_...)"
     FAILED=1
   fi
 
-  # OpenAI API Key
+  # GitHub Fine-grained PAT
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "github_pat_[a-zA-Z0-9_]{82}"; then
+    echo ""
+    echo "⚠️  GitHub Fine-grained PAT 패턴 발견 (github_pat_...)"
+    FAILED=1
+  fi
+
+  # OpenAI API Key (legacy sk-)
   if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "sk-[a-zA-Z0-9]{32,}"; then
     echo ""
     echo "⚠️  OpenAI API Key 패턴 발견 (sk-...)"
+    FAILED=1
+  fi
+
+  # OpenAI Project Key (sk-proj-)
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "sk-proj-[a-zA-Z0-9_-]{50,}"; then
+    echo ""
+    echo "⚠️  OpenAI Project API Key 패턴 발견 (sk-proj-...)"
     FAILED=1
   fi
 
@@ -61,9 +89,30 @@ if [ -n "$STAGED" ]; then
   fi
 
   # Anthropic API Key
-  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "sk-ant-[a-zA-Z0-9\-]{32,}"; then
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "sk-ant-[a-zA-Z0-9-]{32,}"; then
     echo ""
     echo "⚠️  Anthropic API Key 패턴 발견 (sk-ant-...)"
+    FAILED=1
+  fi
+
+  # Google / Gemini API Key
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "AIza[0-9A-Za-z_-]{35}"; then
+    echo ""
+    echo "⚠️  Google/Gemini API Key 패턴 발견 (AIza...)"
+    FAILED=1
+  fi
+
+  # Stripe Secret Key
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "sk_live_[a-zA-Z0-9]{24,}"; then
+    echo ""
+    echo "⚠️  Stripe Secret Key 패턴 발견 (sk_live_...)"
+    FAILED=1
+  fi
+
+  # HuggingFace Token
+  if git diff --cached | grep "^+" | grep -v "^+++" | grep -qE "hf_[a-zA-Z0-9]{30,}"; then
+    echo ""
+    echo "⚠️  HuggingFace Token 패턴 발견 (hf_...)"
     FAILED=1
   fi
 
@@ -73,11 +122,7 @@ if [ -n "$STAGED" ]; then
     echo "⚠️  하드코딩된 패스워드/시크릿 패턴 발견"
     git diff --cached | grep "^+" | grep -v "^+++" | grep -iE "(password|passwd|secret|token)\s*[=:]\s*['\"][a-zA-Z0-9+/]{20,}['\"]" | head -3 | sed 's/^/   /'
     echo ""
-    read -p "   실제 비밀값이 아닌가요? 계속 진행하시겠습니까? (y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      FAILED=1
-    fi
+    _interactive_check
   fi
 fi
 
@@ -99,6 +144,7 @@ echo ""
 if [ "$FAILED" -eq 1 ]; then
   echo "❌ 보안 검사 실패 — 커밋이 차단되었습니다."
   echo "   민감 정보를 제거하거나 .gitignore에 추가하세요."
+  echo "   긴급 우회: git commit --no-verify  (주의: 보안 검사 생략됨)"
   exit 1
 fi
 

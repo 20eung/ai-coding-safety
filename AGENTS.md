@@ -90,8 +90,15 @@ If yes, write `project/release.sh` content to `scripts/release.sh` and run `chmo
 ### Step 5: Verify
 
 Run both hooks manually to confirm they work:
+
 ```bash
+# pre-commit: staged 파일 없이 실행하면 항상 통과 — 실제 검사를 확인하려면 아래처럼 테스트
+echo 'OPENAI_KEY = "sk-test1234567890abcdefghijklmnopqrst"' > /tmp/_hook_test.py
+git add /tmp/_hook_test.py 2>/dev/null || true
+# 또는 현재 프로젝트의 staged 파일이 있는 상태에서 실행
 bash .githooks/pre-commit
+
+# staged 파일이 없을 때는 "✅ 통과" 출력이 정상
 bash .githooks/pre-push
 ```
 

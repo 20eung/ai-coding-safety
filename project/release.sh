@@ -12,7 +12,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
 # ── [CUSTOMIZE] Version source of truth ───────────────────────
-VERSION_FILE="reports/dashboard/version.json"  # ← Change this
+VERSION_FILE="version.json"  # ← 프로젝트에 맞게 변경하세요 (예: package.json, VERSION)
 
 # ── Determine version ─────────────────────────────────────────
 if [ -n "$1" ]; then

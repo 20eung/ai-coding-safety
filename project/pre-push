@@ -13,7 +13,7 @@ echo "🔖 버전 일관성 검사 중..."
 #   JSON:    reports/dashboard/version.json  → { "version": "v1.2.3" }
 #   package: package.json                   → { "version": "1.2.3" }
 #   plain:   VERSION                         → v1.2.3
-VERSION_FILE="reports/dashboard/version.json"  # ← Change this
+VERSION_FILE="version.json"  # ← 프로젝트에 맞게 변경하세요 (예: package.json, VERSION)
 
 # ── Read canonical version ─────────────────────────────────────
 if [ ! -f "$VERSION_FILE" ]; then
