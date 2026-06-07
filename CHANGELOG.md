@@ -1,9 +1,30 @@
+# CHANGELOG
+
 ## v1.6.0 (2026-06-08)
 
-- (No specific changes found in git log)
+### 🐛 Bug Fixes
+- fix(project/release.sh): set -e + $? 데드코드 제거, || {} 패턴으로 교체
+- fix(scripts/release.sh): set -e + $? 데드코드 제거, || {} 패턴으로 교체
+- fix(scripts/release.sh): README.en.md 하드코딩 → 조건부 처리로 교체
+- fix(scripts/release.sh): git add $FILES_TO_ADD 따옴표 미처리 → 분리 git add로 교체
+- fix(scripts/release.sh): echo -e → printf '%s\n' 로 안전 처리
+- fix(scripts/release.sh): RELEASE_NOTES 빈 값이어도 "추출" 메시지 출력되던 버그 수정
+- fix(project/release.sh): awk CHANGELOG 삽입 silent 실패 → prepend(printf) 방식으로 교체
+- fix(global/pre-push): PROJECT_HOOK 체이닝 시 $@ 미전달 수정
+
+### ✨ New Features
+- feat(scripts/release_helper.py): revert: prefix 명시적 chore 버킷 분류 추가
+- feat(GEMINI.md): File Fetch Order 섹션 추가 (CLAUDE.md 수준으로 보완)
+
+### 🔩 Others
+- refactor(scripts/release.sh): DO_BUMP=true 중복 설정 제거
+- fix(AGENTS.md): global/pre-push 설명 오류 수정 및 비표준 표기(레파→레포) 수정
+- fix(README.en.md): TOC 대소문자 헤딩 불일치 수정
+- fix(CHANGELOG.md): v1.2.2, v1.2.1 서브헤딩 추가, 구분선 공백 통일
+- fix(.gitignore): 중복 제거, .gemini/ 추가, Python 캐시 패턴 추가
+- fix(README.md,README.en.md): 파일 목록에 install-hooks.sh, scripts/release.sh, release_helper.py 추가
 
 ---
-# CHANGELOG
 
 ## v1.5.0 (2026-06-07)
 

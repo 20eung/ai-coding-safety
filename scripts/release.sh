@@ -106,16 +106,15 @@ with open('$VERSION_FILE', 'w') as f:
 
   # Update CHANGELOG.md (Prepend automated entry)
   if [ -f CHANGELOG.md ]; then
-    (echo -e "$CHANGELOG_ENTRY"; cat CHANGELOG.md) > CHANGELOG.md.new
+    (printf '%s\n' "$CHANGELOG_ENTRY"; cat CHANGELOG.md) > CHANGELOG.md.new
   else
-    echo -e "$CHANGELOG_ENTRY" > CHANGELOG.md.new
+    printf '%s\n' "$CHANGELOG_ENTRY" > CHANGELOG.md.new
   fi
   mv CHANGELOG.md.new CHANGELOG.md
 
-  # Collect files to commit (only existing ones)
-  FILES_TO_ADD="$VERSION_FILE README.md CHANGELOG.md"
-  [ -f README.en.md ] && FILES_TO_ADD="$FILES_TO_ADD README.en.md"
-  git add $FILES_TO_ADD
+  # Commit changes (only existing files)
+  git add "$VERSION_FILE" README.md CHANGELOG.md
+  [ -f README.en.md ] && git add README.en.md
   git commit -m "chore: version $CANONICAL bump (automated)"
   git push origin "$(git rev-parse --abbrev-ref HEAD)"
   
@@ -159,7 +158,9 @@ if [ -f "$NOTES_FILE" ]; then
 elif [ -f "CHANGELOG.md" ]; then
   CANONICAL_ESC=$(echo "$CANONICAL" | sed 's/\./\\./g')
   RELEASE_NOTES=$(awk "/^## ${CANONICAL_ESC} /{found=1; next} found && /^## /{exit} found{print}" CHANGELOG.md)
-  echo "📄 릴리즈 노트: CHANGELOG.md 에서 추출"
+  if [ -n "$RELEASE_NOTES" ]; then
+    echo "📄 릴리즈 노트: CHANGELOG.md 에서 추출"
+  fi
 else
   RELEASE_NOTES="Release $CANONICAL"
 fi

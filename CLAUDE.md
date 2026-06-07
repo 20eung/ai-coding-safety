@@ -20,7 +20,7 @@ When the user asks to set up git safety hooks, read `AGENTS.md` and follow the p
 Read these files in order before starting setup:
 1. `AGENTS.md` — full procedure
 2. `global/pre-commit` — global security hook
-3. `global/pre-push` — global pre-push hook
+3. `global/pre-push` — global pre-push hook (main/master push 경고 + 체이닝)
 4. `project/pre-commit` — project hook template
 5. `project/pre-push` — project version check template
 
