@@ -1,10 +1,33 @@
-## v1.5.0 (2026-06-08)
-
-- (No specific changes found in git log)
-
----
 # CHANGELOG
 
+## v1.5.0 (2026-06-07)
+
+### 🐛 Bug Fixes
+- fix: scripts/release_helper.py fallback categorized 딕셔너리 `perf`/`test`/`ci` 키 누락 → KeyError 수정
+- fix: scripts/release.sh `git push origin main` 브랜치 하드코딩 → `$(git rev-parse --abbrev-ref HEAD)` 로 수정
+- fix: scripts/release.sh CHANGELOG.md 미존재 시 `cat` 실패 + set -e 강제 종료 수정
+- fix: scripts/release.sh sed 패턴에서 버전 `.` 미이스케이프 → `LATEST_TAG_ESC`/`PREV_V_ESC` 변수 추가
+- fix: global/pre-commit `^` 앵커로 서브디렉토리 `.env` / `id_rsa` 감지 실패 → `(^|/)` 패턴으로 수정
+
+### ✨ New Features
+- feat: scripts/release.sh `-f`/`--force` 플래그로 강제 덮어쓰기 지원 (`DO_BUMP="overwrite"` 데드코드 교체)
+
+### 🔧 CI / Build
+- chore: .gitignore `.claude/` `.pdca-status.json` 추가 및 기존 추적 파일 제거
+- refactor: scripts/release.sh 인자 파싱 블록 분리 (`VERSION_ARG`, `FORCE_OVERWRITE` 변수)
+
+### 🔩 Others
+- refactor: scripts/release.sh + project/release.sh 모든 `read -p` 에 `[ -t 0 ]` TTY 감지 추가 (CI 환경 자동 취소)
+- fix: global/pre-commit GitHub Fine-grained PAT 길이 고정 `{82}` → `{50,}` 하한 방식으로 완화
+- fix: scripts/install-global.sh 완료 메시지 경로 `install-project.sh` → `scripts/install-project.sh`
+
+### 📝 Documentation
+- docs: docs/why-hooks.md `--no-verify` 섹션 뒤 고아 설치 코드 블록에 `## 설치` 제목 추가
+- docs: README.md / README.en.md 목차에 `GitHub 릴리즈`, `파일 목록`, `기여하기` 항목 누락 추가
+- docs: CHANGELOG.md v1.2.0 하위 헤딩 `##` → `###` 수정 및 최상단 `# CHANGELOG` 제목 추가
+- docs: docs/customization.md 버전 파일 경로 첫 번째 예시를 구버전 경로 → `version.json` 으로 수정
+
+---
 ## v1.4.0 (2026-06-07)
 
 ### 🐛 Bug Fixes
