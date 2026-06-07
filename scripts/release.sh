@@ -50,6 +50,14 @@ echo ""
 # ── Update version.json & commit (버전 인수 지정 시) ──────────
 LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 if [ -n "$VERSION_ARG" ] && [ "$VERSION_ARG" != "$LATEST_TAG" ]; then
+  # version.json 현재 값을 "이전 버전"으로 사용 (README 교체 기준)
+  PREV_CANONICAL=$(python3 -c "
+import json
+d = json.load(open('$VERSION_FILE'))
+v = d.get('version', '')
+print(v if v.startswith('v') else 'v' + v)
+" 2>/dev/null)
+
   # version.json 업데이트
   python3 -c "
 import json
@@ -59,13 +67,13 @@ with open('$VERSION_FILE', 'w') as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 "
   # README 버전 배지 업데이트
-  PREV="${LATEST_TAG#v}"
+  PREV="${PREV_CANONICAL#v}"
   NEW="${CANONICAL#v}"
   PREV_ESC=$(echo "$PREV" | sed 's/\./\\./g')
-  LTAG_ESC=$(echo "$LATEST_TAG" | sed 's/\./\\./g')
+  PREV_CANONICAL_ESC=$(echo "$PREV_CANONICAL" | sed 's/\./\\./g')
   for f in README.md README.en.md; do
     [ -f "$f" ] && sed -i \
-      -e "s/# ai-coding-safety ${LTAG_ESC}/# ai-coding-safety ${CANONICAL}/g" \
+      -e "s/# ai-coding-safety ${PREV_CANONICAL_ESC}/# ai-coding-safety ${CANONICAL}/g" \
       -e "s/Version-${PREV_ESC}-blueviolet/Version-${NEW}-blueviolet/g" \
       "$f"
   done
