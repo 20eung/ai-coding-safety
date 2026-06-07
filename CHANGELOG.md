@@ -1,3 +1,8 @@
+## v1.6.0 (2026-06-08)
+
+- (No specific changes found in git log)
+
+---
 # CHANGELOG
 
 ## v1.5.0 (2026-06-07)
